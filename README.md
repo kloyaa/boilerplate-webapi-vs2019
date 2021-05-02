@@ -1,8 +1,7 @@
 # webapi-vs2019-boilerplate
 WebApi using EntityFramework &amp; Json Web Token
 
-<pre>
-<?xml version="1.0" encoding="utf-8"?>
+<code>
 <packages>
   <package id="AutoMapper" version="7.0.1" targetFramework="net452" />
   <package id="EntityFramework" version="6.4.4" targetFramework="net452" />
@@ -39,4 +38,4 @@ WebApi using EntityFramework &amp; Json Web Token
   <package id="TuesPechkin.Wkhtmltox.Win32" version="0.12.2.1" targetFramework="net452" />
   <package id="WebActivatorEx" version="2.2.0" targetFramework="net452" />
 </packages>
-</pre>
+</code>
