@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
+using System.Text;
 using System.Web;
 using System.Web.Http;
 using webapi_vs2019.Models;
@@ -14,6 +15,7 @@ namespace webapi_vs2019.Controllers
     {
 
         dbContext _db = new dbContext();
+
 
         [HttpPost]
         [Route("api/account/register")]
@@ -27,13 +29,18 @@ namespace webapi_vs2019.Controllers
 
             var user = UserAccount.GetUserByUserName(newUser.UserName);
             if (user != null)
+            {
                 return BadRequest("Account already exists");
+            }
+
 
             var userId = UserAccount.Create(newUser.UserName, newUser.Password, newUser.Role);
+
+
             if (userId != null)
             {
                 // Feel free to remove the ABOVE code if not needed.
-                return Ok(new { UserId = userId, Message = "Account successfully created" });
+                return Ok(userId);
             }
             else
                 return BadRequest("Account registration failed");
@@ -48,9 +55,8 @@ namespace webapi_vs2019.Controllers
                 var user = UserAccount.GetUserByUserName(username);
                 var data = new
                 {
-                    userId = user.Id,
+                    accountId = user.uniqueId,
                     userName = user.UserName,
-                    userRoles = user.Roles.Split(','),
                     token = JwtManager.GenerateToken(username)
                 };
                 return Ok(data);

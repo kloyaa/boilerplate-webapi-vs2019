@@ -15,6 +15,7 @@ public partial class UserAccount
 
     #region UserAccountRepository
     public int Id { get; set; }
+    public string uniqueId { get; set; }
     //Login info
     [Required]
     [StringLength(254)]
@@ -70,8 +71,23 @@ public partial class UserAccount
 
         return true;
     }
+    private static Random random = new Random();
 
-    public static int? Create(string userName, string userPassword, string userRoles = "", bool requiresActivation = false)
+    private static string RandomString(int length)
+    {
+        const string chars = "abcdefghijklmnopqrstuv0123456789";
+        return new string(Enumerable.Repeat(chars, length)
+          .Select(s => s[random.Next(s.Length)]).ToArray());
+    }
+
+    private static string GenerateUniqueId(string id, string generatedCharacters)
+    {
+        string generatedChars = generatedCharacters;
+        generatedChars.Insert(random.Next(1, generatedCharacters.Length), id);
+
+        return generatedChars;
+    }
+    public static string Create(string userName, string userPassword, string userRoles = "", bool requiresActivation = false)
     {
         if (string.IsNullOrWhiteSpace(userPassword))
             return null;
@@ -92,6 +108,7 @@ public partial class UserAccount
             user.PasswordHash = hmac.ComputeHash(System.Text.Encoding.UTF8.GetBytes(userPassword));
         }
 
+        user.uniqueId = GenerateUniqueId(user.Id.ToString(), RandomString(25));
         user.Roles = userRoles;
         user.CreatedOn = DateTime.Now;
         user.IsActive = !requiresActivation;
@@ -99,7 +116,7 @@ public partial class UserAccount
         _db.Users.Add(user);
         _db.SaveChanges();
 
-        return user.Id;
+        return GenerateUniqueId(user.Id.ToString(), RandomString(25));
     }
 
     private static void CreateAdmin()
@@ -133,13 +150,13 @@ public partial class UserAccount
                 user.PasswordSalt = hmac.Key;
                 user.PasswordHash = hmac.ComputeHash(System.Text.Encoding.UTF8.GetBytes(newPassword));
             }
-            
-	        _db.Entry(user).State = System.Data.Entity.EntityState.Modified;
-	        _db.SaveChanges();
-	        return true;            
+
+            _db.Entry(user).State = System.Data.Entity.EntityState.Modified;
+            _db.SaveChanges();
+            return true;
         }
-		else
-			return false;
+        else
+            return false;
 
     }
 
@@ -163,7 +180,7 @@ public partial class UserAccount
 
     public static UserAccount GetUserByUserName(string userName)
     {
-    	var user = _db.Users.Where(x => x.UserName.ToLower() == userName.ToLower()).FirstOrDefault();
+        var user = _db.Users.Where(x => x.UserName.ToLower() == userName.ToLower()).FirstOrDefault();
         return user;
     }
 
